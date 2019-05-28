@@ -1,0 +1,40 @@
+<launch>
+  <arg name="world_file"  default="$(find project3)/world/rrl_map.world"/>
+
+  <arg name="base"      value="$(optenv TURTLEBOT_BASE kobuki)"/> <!-- create, roomba -->
+  <arg name="battery"   value="$(optenv TURTLEBOT_BATTERY /proc/acpi/battery/BAT0)"/>  <!-- /proc/acpi/battery/BAT0 --> 
+  <arg name="gui" default="true"/>
+  <arg name="stacks"    value="$(optenv TURTLEBOT_STACKS hexagons)"/>  <!-- circles, hexagons --> 
+  <arg name="3d_sensor" value="$(optenv TURTLEBOT_3D_SENSOR kinect)"/>  <!-- kinect, asus_xtion_pro --> 
+
+  <arg name="start_x" default = "-5.05" />
+  <arg name="start_y" default = "2" />
+  <arg name="goal_x" default = "-3.55" />
+  <arg name="goal_y" default = "-1.95" />
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="use_sim_time" value="true"/>
+    <arg name="debug" value="false"/>
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="world_name" value="$(arg world_file)"/>
+  </include>
+  
+  <include file="$(find project3)/launch/$(arg base).launch.xml">
+     <arg name="ROBOT_INITIAL_POSE" value="-x $(arg start_x) -y $(arg start_y) -z 0.0 -R 0.0 -P 0.0 -Y 0.0"/>
+    <arg name="base" value="$(arg base)"/>
+    <arg name="stacks" value="$(arg stacks)"/>
+    <arg name="3d_sensor" value="$(arg 3d_sensor)"/>
+  </include>
+  
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+    <param name="publish_frequency" type="double" value="30.0" />
+  </node>
+
+  <node pkg="project3" type="project_3_alpha.py" name ="coords">
+    <param name="start_x" value="$(arg start_x)" />
+    <param name="start_y" value="$(arg start_y)" />
+    <param name="goal_x" value="$(arg goal_x)" />
+    <param name="goal_y" value="$(arg goal_y)" />
+  </node>
+
+</launch>
